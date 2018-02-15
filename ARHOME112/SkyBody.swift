@@ -15,29 +15,42 @@ class SkyBody: SCNNode{
     var velocity: Float!
     var density: Float!
     var temperature: Float!
-    var radius: CGFloat!
+    var radius: Float!
+    var orbit: Orbit!
+    var T: Float! // orbital period
+    var g: Float! // gravity parameter
+    var n: Float! // middle angle speed of virtual body
+    var M: Float! // middle anomaly
+    var E: Float! // eccentry anomaly
+    var time: Float! = 0.0 // start time in perigelion
     
     var title: String!
     var geom: SCNGeometry!
     
     convenience init(position: SCNVector3, withRad radius: Float, withMass mass: Float,
                      withDensity density: Float, withTemp temperature: Float,
-                     withName name: String){
+                     withOrbit orbit: Orbit, withName name: String, gravity g: Float){
+        
         // set global sky body characters
         self.init()
-        
         self.mass = mass
-        self.radius = CGFloat(radius)
+        self.radius = radius
         self.density = density
         self.temperature =  temperature
         self.title = name
+        self.orbit = orbit
+        self.g = g
+        self.T = 2*Float.pi*sqrt(powf(self.orbit.a, 3) / g)
+        self.n = 2*Float.pi / self.T
         
         // create geometry of sphere
-        self.geom  = SCNSphere(radius: self.radius)
+        self.geom  = SCNSphere(radius: CGFloat(self.radius))
         
         // create planet node and set it position
         let node = SCNNode(geometry: self.geom)
         node.name = self.title
+        
+        // set position to skybody in aphelion
         node.position = position
         
         // push planet to root
@@ -48,8 +61,39 @@ class SkyBody: SCNNode{
         self.geom.firstMaterial?.diffuse.contents = UIImage(named: material)
     }
     
-    func addOrbit(){
+    func rotationStep(position: SCNVector3){
         
+        // rotation time moment
+        self.time = (self.time + 3600*24) <= self.T ? self.time + 3600*24 : 0.0
+        
+        // find new position in XZ plane
+        var newPosition = SCNVector3()
+        self.M = self.n * self.time
+        self.E = solveKeplerEquation()
+        newPosition.x = self.orbit.x(angle: E)
+        newPosition.y = position.y
+        newPosition.z = self.orbit.z(angle: E)
+        // her one tick of rotation //
+        
+        print(self.position)
+        let moveAction = SCNAction.move(to: newPosition, duration: 1)
+        self.runAction(moveAction)
+    }
+    
+    
+    // we should solve eq E - e*sin(E) = M
+    func solveKeplerEquation() -> Float
+    {
+        // here we will use method of static point x = f(x)
+        var En = Float(0.0)
+        var E = Float(0.0)
+        let eps = Float(1e-5)
+        repeat{
+            En = E
+            E = self.orbit.e * sinf(En) + self.M
+        }
+        while(fabs(E - En) > eps)
+        return E
     }
     
     

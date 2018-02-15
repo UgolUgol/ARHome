@@ -15,6 +15,7 @@ class ViewController: UIViewController {
 
     @IBOutlet var sceneView: ARSCNView!
     var isAddingPlane: Bool = true
+    var solarSystemVisible = false
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -29,7 +30,6 @@ class ViewController: UIViewController {
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         setUpSceneView()
-        
     }
     
     func setUpSceneView(){
@@ -62,6 +62,7 @@ class ViewController: UIViewController {
         
         sceneView.scene = solarSystem
         self.isAddingPlane = false
+        self.solarSystemVisible = true
     }
     
     
@@ -88,6 +89,13 @@ extension ViewController: ARSCNViewDelegate{
     func renderer(_ renderer: SCNSceneRenderer, didUpdate node: SCNNode, for anchor: ARAnchor) {
         if self.isAddingPlane {
             updatePlane(didUpdate: node, for: anchor)
+        }
+    }
+    
+    func renderer(_ renderer: SCNSceneRenderer, updateAtTime time: TimeInterval) {
+        if(self.solarSystemVisible){
+            let scene = self.sceneView.scene as! SolarSystem
+            scene.makeRotationCicle()
         }
     }
     

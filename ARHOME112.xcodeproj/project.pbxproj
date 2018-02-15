@@ -13,6 +13,7 @@
 		FF1AB5E2202C457E00A1E761 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF1AB5E0202C457E00A1E761 /* Main.storyboard */; };
 		FF1AB5E4202C457E00A1E761 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = FF1AB5E3202C457E00A1E761 /* Assets.xcassets */; };
 		FF1AB5E7202C457E00A1E761 /* LaunchScreen.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = FF1AB5E5202C457E00A1E761 /* LaunchScreen.storyboard */; };
+		FF4484AC203457F000878108 /* Orbit.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4484AB203457F000878108 /* Orbit.swift */; };
 		FF4ACD672032EF61009A04A4 /* SolarSystem.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4ACD662032EF61009A04A4 /* SolarSystem.swift */; };
 		FF4D6675202DAB8800470CFE /* VirtualPlane.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF4D6674202DAB8700470CFE /* VirtualPlane.swift */; };
 		FF52B27F20320EF800027255 /* SkyBody.swift in Sources */ = {isa = PBXBuildFile; fileRef = FF52B27E20320EF800027255 /* SkyBody.swift */; };
@@ -28,6 +29,7 @@
 		FF1AB5E3202C457E00A1E761 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		FF1AB5E6202C457E00A1E761 /* Base */ = {isa = PBXFileReference; lastKnownFileType = file.storyboard; name = Base; path = Base.lproj/LaunchScreen.storyboard; sourceTree = "<group>"; };
 		FF1AB5E8202C457E00A1E761 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
+		FF4484AB203457F000878108 /* Orbit.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Orbit.swift; sourceTree = "<group>"; };
 		FF4ACD662032EF61009A04A4 /* SolarSystem.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SolarSystem.swift; sourceTree = "<group>"; };
 		FF4D6674202DAB8700470CFE /* VirtualPlane.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualPlane.swift; sourceTree = "<group>"; };
 		FF52B27E20320EF800027255 /* SkyBody.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SkyBody.swift; sourceTree = "<group>"; };
@@ -69,6 +71,7 @@
 				FF1AB5DE202C457E00A1E761 /* ViewController.swift */,
 				FF52B27E20320EF800027255 /* SkyBody.swift */,
 				FF4ACD662032EF61009A04A4 /* SolarSystem.swift */,
+				FF4484AB203457F000878108 /* Orbit.swift */,
 				FF4D6674202DAB8700470CFE /* VirtualPlane.swift */,
 				FFFC832E2030702100D73F64 /* ObjModel.swift */,
 				FF1AB5E0202C457E00A1E761 /* Main.storyboard */,
@@ -154,6 +157,7 @@
 			files = (
 				FF1AB5DF202C457E00A1E761 /* ViewController.swift in Sources */,
 				FFFC832F2030702100D73F64 /* ObjModel.swift in Sources */,
+				FF4484AC203457F000878108 /* Orbit.swift in Sources */,
 				FF4ACD672032EF61009A04A4 /* SolarSystem.swift in Sources */,
 				FF1AB5DD202C457E00A1E761 /* AppDelegate.swift in Sources */,
 				FF4D6675202DAB8800470CFE /* VirtualPlane.swift in Sources */,
