@@ -16,6 +16,7 @@ class SolarSystem: SCNScene{
     var time: Float! = 0.0
     var G: Float! = 6.67 * powf(10, -11) // Gravity constant
     var au: Float! = 6.6846e-12  // how much astronimical units in 1 meter
+    var scale: Float! = 5e10
     
     convenience init(sunPosition posVec: SCNVector3){
         self.init()
@@ -44,10 +45,9 @@ class SolarSystem: SCNScene{
     
     // sun creation func
     func createSun(posVec: SCNVector3){
-        self.sunRadius = 0.3
-        self.sun = SkyBody(position: posVec, withRad: self.sunRadius,
-                           withMass: 1.989E30, withDensity: 12,
-                           withTemp: 15, withOrbit: Orbit(majorAxis: 0, eccentricity: 0),
+        self.sunRadius = Float(6.9551e8)
+        self.sun = SkyBody(position: posVec, withRad: self.sunRadius, onDispRad: 0.2,
+                           withDensity: 1409.0, withOrbit: Orbit(majorAxis: 0, eccentricity: 0),
                            withName: "Sun", gravity: self.G)
         self.sun.addMaterial(materialName: "Sun_diffuse")
     }
@@ -57,12 +57,11 @@ class SolarSystem: SCNScene{
     func createPlanets(posVec: SCNVector3){
         
         // set planets default parameters
-        // [name, orbitRadius, selfRadius, mass, density, temperature, materialPath]
+        // [name, orbitRadius, selfRadius, density, temperature, materialPath]
         let defaultPlanetsParameters = [
-            ["name": "Mercury", "selfRadius": Float(0.05),
-             "mass": Float(3.33e23), "density": Float(5.43),
-             "majorAxis": Float(0.387), "eccentricity": Float(0.206),
-             "temperature": Float(20), "materialPath": "mercury_diffuse_2k"]
+            ["name": "Mercury", "selfRadius": Float(2440e3), "density": Float(5427.0),
+             "majorAxis": Float(57909227000), "eccentricity": Float(0.206),
+             "materialPath": "mercury_diffuse_2k"]
         ]
         
         // create planets of scene adding it to planets array
@@ -72,24 +71,21 @@ class SolarSystem: SCNScene{
             // get planet parameters
             let planetName = planet["name"] as! String
             let planetRad = planet["selfRadius"] as! Float
-            let planetMass = planet["mass"] as! Float
             let planetDensity = planet["density"] as! Float
-            let planetTemp = planet["temperature"] as! Float
             let material = planet["materialPath"] as! String
             let a = planet["majorAxis"] as! Float
             let e = planet["eccentricity"] as! Float
             
             // create planet orbit and position in sky
             let planetOrbit = Orbit(majorAxis: a, eccentricity: e)
-            let planetPosition = SCNVector3(posVec.x + self.sunRadius + planetOrbit.perigelion,
-                                            posVec.y, posVec.z)
+            let planetPosition = SCNVector3(posVec.x,
+                                            posVec.y, (posVec.z - self.sunRadius - planetOrbit.perigelion) / self.scale)
             
-            // create planet
+            // create planetr
             // g = G * au * sunMass - grav parameter in astronomic units (g = GM)
-            self.planets[planetName] = SkyBody(position: planetPosition, withRad: planetRad,
-                                               withMass: planetMass, withDensity: planetDensity,
-                                               withTemp: planetTemp, withOrbit: planetOrbit,
-                                               withName: planetName, gravity: self.G * powf(au, 3) * self.sun.mass!)
+            self.planets[planetName] = SkyBody(position: planetPosition, withRad: planetRad, onDispRad: 0.05,
+                                               withDensity: planetDensity, withOrbit: planetOrbit,
+                                               withName: planetName, gravity: self.G * self.sun.mass!)
             
             // set plane material
             self.planets[planetName]!.addMaterial(materialName: material)
@@ -99,11 +95,11 @@ class SolarSystem: SCNScene{
         }
     }
     
+    
+    // making one rotation step for each planet
     func makeRotationCicle(){
-        
-        // making one rotation step for each planet
         for planet in planets{
-            planet.value.rotationStep(position: planet.value.position)
+           planet.value.rotationStep(position: planet.value.position, scale: self.scale)
         }
     }
     

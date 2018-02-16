@@ -27,24 +27,26 @@ class SkyBody: SCNNode{
     var title: String!
     var geom: SCNGeometry!
     
-    convenience init(position: SCNVector3, withRad radius: Float, withMass mass: Float,
-                     withDensity density: Float, withTemp temperature: Float,
-                     withOrbit orbit: Orbit, withName name: String, gravity g: Float){
+    convenience init(position: SCNVector3, withRad radius: Float,
+                     onDispRad drad: Float, withDensity density: Float,
+                     withOrbit orbit: Orbit, withName name: String,
+                     gravity g: Float){
         
         // set global sky body characters
         self.init()
-        self.mass = mass
         self.radius = radius
         self.density = density
-        self.temperature =  temperature
+        self.mass = 4/3 * Float.pi * powf(self.radius, 3) * self.density
+        self.temperature =  0.0
         self.title = name
         self.orbit = orbit
         self.g = g
-        self.T = 2*Float.pi*sqrt(powf(self.orbit.a, 3) / g)
-        self.n = 2*Float.pi / self.T
+        self.T = 2 * Float.pi * sqrt(powf(self.orbit.a, 3) / g)
+        self.n = 2 * Float.pi / self.T
+        
         
         // create geometry of sphere
-        self.geom  = SCNSphere(radius: CGFloat(self.radius))
+        self.geom  = SCNSphere(radius: CGFloat(drad))
         
         // create planet node and set it position
         let node = SCNNode(geometry: self.geom)
@@ -61,21 +63,22 @@ class SkyBody: SCNNode{
         self.geom.firstMaterial?.diffuse.contents = UIImage(named: material)
     }
     
-    func rotationStep(position: SCNVector3){
+    
+    func rotationStep(position: SCNVector3, scale: Float!){
         
         // rotation time moment
-        self.time = (self.time + 3600*24) <= self.T ? self.time + 3600*24 : 0.0
+        self.time = (self.time + 3600) <= self.T ? self.time + 3600 : 0.0
         
         // find new position in XZ plane
         var newPosition = SCNVector3()
         self.M = self.n * self.time
         self.E = solveKeplerEquation()
-        newPosition.x = self.orbit.x(angle: E)
+        newPosition.x = self.orbit.x(angle: E) / scale
         newPosition.y = position.y
-        newPosition.z = self.orbit.z(angle: E)
-        // her one tick of rotation //
+        newPosition.z = self.orbit.z(angle: E) / scale
+        print("\(self.E) \t \(newPosition) \t \(self.time)")
         
-        print(self.position)
+        // her one tick of rotation
         let moveAction = SCNAction.move(to: newPosition, duration: 1)
         self.runAction(moveAction)
     }
