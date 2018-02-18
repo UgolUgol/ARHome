@@ -38,8 +38,7 @@ class ViewController: UIViewController {
         sceneView.session.run(config)
         
         sceneView.delegate = self
-        sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints]
-        
+        sceneView.debugOptions = [ARSCNDebugOptions.showFeaturePoints, ARSCNDebugOptions.showWorldOrigin]
     }
     
     @objc func createSolarSystem(withGestureRecognizer recognizer: UIGestureRecognizer){
@@ -76,7 +75,6 @@ class ViewController: UIViewController {
 }
 
 extension ViewController: ARSCNViewDelegate{
-    
     // first plane detection
     func renderer(_ renderer: SCNSceneRenderer, didAdd node: SCNNode, for anchor: ARAnchor) {
         if self.isAddingPlane {
