@@ -14,9 +14,9 @@ class SolarSystem: SCNScene{
     var sunRadius: Float!
     var planets: Dictionary<String, SkyBody>!
     var time: Float! = 0.0
-    var G: Float! = 6.67 * powf(10, -11) // Gravity constant
-    var au: Float! = 6.6846e-12  // how much astronimical units in 1 meter
-    var scale: Float! = 5e10
+    var G: Float! = 6.67 * powf(10, -11)    // Gravity constant
+    var au: Float! = 6.6846e-12             // how much astronimical units in 1 meter
+    var scale: Float! = 9e10
     
     convenience init(sunPosition posVec: SCNVector3){
         self.init()
@@ -46,7 +46,7 @@ class SolarSystem: SCNScene{
     // sun creation func
     func createSun(posVec: SCNVector3){
         self.sunRadius = Float(6.9551e8)
-        self.sun = SkyBody(position: posVec, withRad: self.sunRadius, onDispRad: 0.2,
+        self.sun = SkyBody(position: posVec, withRad: self.sunRadius, onDispRad: 0.05,
                            withDensity: 1409.0, withOrbit: Orbit(majorAxis: 0, eccentricity: 0),
                            withName: "Sun", gravity: self.G)
         self.sun.addMaterial(materialName: "Sun_diffuse")
@@ -77,13 +77,15 @@ class SolarSystem: SCNScene{
             let e = planet["eccentricity"] as! Float
             
             // create planet orbit and position in sky
+            // z coordinate is caculating considering the scale
             let planetOrbit = Orbit(majorAxis: a, eccentricity: e)
             let planetPosition = SCNVector3(posVec.x,
-                                            posVec.y, (posVec.z - self.sunRadius - planetOrbit.perigelion) / self.scale)
+                                            posVec.y,
+                                            (planetOrbit.z(angle: 0)) / self.scale)
             
             // create planetr
             // g = G * au * sunMass - grav parameter in astronomic units (g = GM)
-            self.planets[planetName] = SkyBody(position: planetPosition, withRad: planetRad, onDispRad: 0.05,
+            self.planets[planetName] = SkyBody(position: planetPosition, withRad: planetRad, onDispRad: 0.005,
                                                withDensity: planetDensity, withOrbit: planetOrbit,
                                                withName: planetName, gravity: self.G * self.sun.mass!)
             
