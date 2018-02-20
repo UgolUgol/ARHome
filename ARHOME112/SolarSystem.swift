@@ -26,7 +26,8 @@ class SolarSystem: SCNScene{
         
         // create solar planets
         createPlanets(posVec: posVec)
-
+        
+        // add sun and it's child nodes to scene
         self.rootNode.addChildNode(self.sun)
     }
     
@@ -47,7 +48,7 @@ class SolarSystem: SCNScene{
     func createSun(posVec: SCNVector3){
         self.sunRadius = Float(6.9551e8)
         self.sun = SkyBody(position: posVec, withRad: self.sunRadius, onDispRad: 0.2,
-                           withDensity: 1409.0, withOrbit: Orbit(majorAxis: 0, eccentricity: 0),
+                           withDensity: 1409.0, withOrbit: Orbit(majorAxis: 0, eccentricity: 0, sunPosition: posVec),
                            withName: "Sun", gravity: self.G)
         self.sun.addMaterial(materialName: "Sun_diffuse")
     }
@@ -59,9 +60,15 @@ class SolarSystem: SCNScene{
         // set planets default parameters
         // [name, orbitRadius, selfRadius, density, temperature, materialPath]
         let defaultPlanetsParameters = [
-            ["name": "Mercury", "selfRadius": Float(2440e3), "density": Float(5427.0),
+            ["name": "Mercury", "selfRadius": Float(2440e3),
+             "dRad": Float(0.03), "density": Float(5427.0),
              "majorAxis": Float(57909227000), "eccentricity": Float(0.206),
-             "materialPath": "mercury_diffuse_2k"]
+             "materialPath": "mercury_diffuse_2k"],
+            
+            ["name": "Venera", "selfRadius": Float(6052e3),
+             "dRad": Float(0.05), "density": Float(5240.0),
+             "majorAxis": Float(108208930000), "eccentricity": Float(0.0068),
+             "materialPath": "venera_diffuse_2k"]
         ]
         
         // create planets of scene adding it to planets array
@@ -71,29 +78,31 @@ class SolarSystem: SCNScene{
             // get planet parameters
             let planetName = planet["name"] as! String
             let planetRad = planet["selfRadius"] as! Float
+            let planetDRad = planet["dRad"] as! Float
             let planetDensity = planet["density"] as! Float
             let material = planet["materialPath"] as! String
             let a = planet["majorAxis"] as! Float
             let e = planet["eccentricity"] as! Float
             
             // create planet orbit and position in sky
-            // z coordinate is caculating considering the scale
-            let planetOrbit = Orbit(majorAxis: a, eccentricity: e)
-            let planetPosition = SCNVector3(posVec.x,
-                                            posVec.y,
-                                            posVec.z + (planetOrbit.z(angle: 0)) / self.scale)
+            // x coordinate is caculating considering scale
+            // in local sun coordinates
+            let planetOrbit = Orbit(majorAxis: a, eccentricity: e, sunPosition: posVec)
+            let planetPosition = SCNVector3((planetOrbit.x(angle: 0)) / self.scale, 0, 0)
             
-            // create planetr
+            // create planet
             // g = G * au * sunMass - grav parameter in astronomic units (g = GM)
-            self.planets[planetName] = SkyBody(position: planetPosition, withRad: planetRad, onDispRad: 0.05,
-                                               withDensity: planetDensity, withOrbit: planetOrbit,
-                                               withName: planetName, gravity: self.G * self.sun.mass!)
+            self.planets[planetName] = SkyBody(position: planetPosition, withRad: planetRad,
+                                               onDispRad: planetDRad, withDensity: planetDensity,
+                                               withOrbit: planetOrbit, withName: planetName,
+                                               gravity: self.G * self.sun.mass!)
             
             // set plane material
             self.planets[planetName]!.addMaterial(materialName: material)
             
             // add plane to solar system
             self.sun.addChildNode(self.planets[planetName]!)
+
         }
     }
     

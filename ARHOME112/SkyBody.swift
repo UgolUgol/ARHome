@@ -15,14 +15,15 @@ class SkyBody: SCNNode{
     var velocity: Float!
     var density: Float!
     var temperature: Float!
-    var radius: Float!
+    var radius: Float!                  // real skybody radius, use for phys calculating
+    var drad: Float!                    // skybody radius considering the scale. it uses for displaing
     var orbit: Orbit!
-    var T: Float! // orbital period
-    var g: Float! // gravity parameter
-    var n: Float! // middle angle speed of virtual body
-    var M: Float! // middle anomaly
-    var E: Float! // eccentry anomaly
-    var time: Float! = 0.0 // start time in perigelion
+    var T: Float!                       // orbital period
+    var g: Float!                       // gravity parameter
+    var n: Float!                       // middle angle speed of virtual body
+    var M: Float!                       // middle anomaly
+    var E: Float!                       // eccentry anomaly
+    var time: Float! = 0.0              // start time in perigelion
     
     var title: String!
     var geom: SCNGeometry!
@@ -35,6 +36,7 @@ class SkyBody: SCNNode{
         // set global sky body characters
         self.init()
         self.radius = radius
+        self.drad = drad
         self.density = density
         self.mass = 4/3 * Float.pi * powf(self.radius, 3) * self.density
         self.temperature =  0.0
@@ -44,19 +46,15 @@ class SkyBody: SCNNode{
         self.T = 2 * Float.pi * sqrt(powf(self.orbit.a, 3) / g)
         self.n = 2 * Float.pi / self.T
         
-        
         // create geometry of sphere
-        self.geom  = SCNSphere(radius: CGFloat(drad))
+        self.geom  = SCNSphere(radius: CGFloat(self.drad))
         
         // create planet node and set it position
-        let node = SCNNode(geometry: self.geom)
-        node.name = self.title
+        self.geometry = self.geom
+        self.name = self.title
         
-        // set position to skybody in aphelion
-        node.position = position
-        
-        // push planet to root
-        self.addChildNode(node)
+        // set position to skybody in perigelion
+        self.position = position
     }
     
     func addMaterial(materialName material: String) {
@@ -69,16 +67,17 @@ class SkyBody: SCNNode{
         // rotation time moment
         self.time = (self.time + 3600) <= self.T ? self.time + 3600 : 0.0
         
-        // find new position in XZ plane
+        // find the angle E(t) solving kelper eq
         var newPosition = SCNVector3()
         self.M = self.n * self.time
         self.E = solveKeplerEquation()
+        
+        // set new position to move
         newPosition.x = self.orbit.x(angle: E) / scale
         newPosition.y = position.y
         newPosition.z = self.orbit.z(angle: E) / scale
-        print("\(self.E) \t \(newPosition) \t \(self.time)")
         
-        // her one tick of rotation
+        // here one tick of rotation
         let moveAction = SCNAction.move(to: newPosition, duration: 1)
         self.runAction(moveAction)
     }

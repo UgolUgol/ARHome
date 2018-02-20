@@ -7,6 +7,7 @@
 //
 
 import Foundation
+import SceneKit
 
 class Orbit{
     var a: Float    // major axis
@@ -16,7 +17,8 @@ class Orbit{
     var p: Float    // focal param
     var perigelion: Float // distance from sun position to perigelion
     
-    init(majorAxis a: Float, eccentricity e: Float){
+    
+    init(majorAxis a: Float, eccentricity e: Float, sunPosition pos: SCNVector3){
         self.a = a
         self.e = e
         self.p = (1-self.e * self.e) * self.a
@@ -30,10 +32,10 @@ class Orbit{
     }
     
     func x(angle E: Float)->Float{
-        return r(angle: E) * sin(E)
+        return r(angle: E) * cos(E)
     }
     
     func z(angle E: Float)->Float{
-        return r(angle: E) * cos(E)
+        return r(angle: E) * sin(E)
     }
 }

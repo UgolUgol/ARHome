@@ -59,6 +59,7 @@ class ViewController: UIViewController {
         // create solar system scene
         let solarSystem = SolarSystem(sunPosition: posVec)
         
+        // set new scene
         sceneView.scene = solarSystem
         self.isAddingPlane = false
         self.solarSystemVisible = true
