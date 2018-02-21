@@ -16,7 +16,7 @@ class SolarSystem: SCNScene{
     var time: Float! = 0.0
     var G: Float! = 6.67 * powf(10, -11)    // Gravity constant
     var au: Float! = 6.6846e-12             // how much astronimical units in 1 meter
-    var scale: Float! = 9e10
+    var scale: Float! = 2e11
     
     convenience init(sunPosition posVec: SCNVector3){
         self.init()
@@ -47,7 +47,7 @@ class SolarSystem: SCNScene{
     // sun creation func
     func createSun(posVec: SCNVector3){
         self.sunRadius = Float(6.9551e8)
-        self.sun = SkyBody(position: posVec, withRad: self.sunRadius, onDispRad: 0.2,
+        self.sun = SkyBody(position: posVec, withRad: self.sunRadius, onDispRad: 0.15,
                            withDensity: 1409.0, withOrbit: Orbit(majorAxis: 0, eccentricity: 0, sunPosition: posVec),
                            withName: "Sun", gravity: self.G)
         self.sun.addMaterial(materialName: "Sun_diffuse")
@@ -68,7 +68,12 @@ class SolarSystem: SCNScene{
             ["name": "Venera", "selfRadius": Float(6052e3),
              "dRad": Float(0.05), "density": Float(5240.0),
              "majorAxis": Float(108208930000), "eccentricity": Float(0.0068),
-             "materialPath": "venera_diffuse_2k"]
+             "materialPath": "venera_diffuse_2k"],
+            
+            ["name": "Earth", "selfRadius": Float(6371e3),
+             "dRad": Float(0.06), "density": Float(5515.0),
+             "majorAxis": Float(149598261000), "eccentricity": Float(0.0167),
+             "materialPath": "earth_diffuse_2k"]
         ]
         
         // create planets of scene adding it to planets array

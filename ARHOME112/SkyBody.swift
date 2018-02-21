@@ -12,11 +12,14 @@ import SceneKit
 class SkyBody: SCNNode{
     var mass: Float!
     var speed: Float!
+    var angle_speed: Float!
     var velocity: Float!
+    
     var density: Float!
     var temperature: Float!
     var radius: Float!                  // real skybody radius, use for phys calculating
     var drad: Float!                    // skybody radius considering the scale. it uses for displaing
+    
     var orbit: Orbit!
     var T: Float!                       // orbital period
     var g: Float!                       // gravity parameter
@@ -24,6 +27,7 @@ class SkyBody: SCNNode{
     var M: Float!                       // middle anomaly
     var E: Float!                       // eccentry anomaly
     var time: Float! = 0.0              // start time in perigelion
+    var dt: Float! = 8*3600               // adding time in seconds
     
     var title: String!
     var geom: SCNGeometry!
@@ -65,8 +69,8 @@ class SkyBody: SCNNode{
     func rotationStep(position: SCNVector3, scale: Float!){
         
         // rotation time moment
-        self.time = (self.time + 3600) <= self.T ? self.time + 3600 : 0.0
-        
+        self.time = (self.time + self.dt) <= self.T ? self.time + self.dt : 0.0
+
         // find the angle E(t) solving kelper eq
         var newPosition = SCNVector3()
         self.M = self.n * self.time
@@ -77,9 +81,16 @@ class SkyBody: SCNNode{
         newPosition.y = position.y
         newPosition.z = self.orbit.z(angle: E) / scale
         
-        // here one tick of rotation
-        let moveAction = SCNAction.move(to: newPosition, duration: 1)
-        self.runAction(moveAction)
+        // speed calculation
+        speedAtPoint(r: self.orbit.r(angle: E))
+        print("\(self.speed!) \(self.E! * 180 / Float.pi)")
+    
+        self.position = newPosition
+    }
+    
+    
+    func speedAtPoint(r: Float){
+        self.speed = sqrt(self.g * (2 / r - 1 / self.orbit.a))
     }
     
     

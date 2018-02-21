@@ -28,7 +28,7 @@ class Orbit{
     }
     
     func r(angle E: Float)->Float{
-        return self.a * (1 - self.e*cos(E))
+        return self.a * (1 + self.e*cos(E))
     }
     
     func x(angle E: Float)->Float{
