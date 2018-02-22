@@ -27,6 +27,10 @@ class Orbit{
         self.c = sqrt(self.a * self.a - self.b * self.b)
         self.p = powf(self.b, 2) / self.c
         self.perigelion = self.a - self.c
+        
+        // show orbit trajectory
+        self.show = true
+        self.trajectory = SCNNode()
     }
     
     func r(angle v: Float)->Float{
