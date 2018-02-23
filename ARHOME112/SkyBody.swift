@@ -48,7 +48,7 @@ class SkyBody: SCNNode{
         self.title = name
         self.orbit = orbit
         self.g = g
-        self.T = 2 * Float.pi * sqrt(powf(self.orbit.a, 3) / g)
+        self.T = findPlanetPeriod()
         self.n = 2 * Float.pi / self.T
         self.E = 0
         
@@ -67,11 +67,42 @@ class SkyBody: SCNNode{
         self.geom.firstMaterial?.diffuse.contents = UIImage(named: material)
     }
     
-    
-    func rotationStep(position: SCNVector3, scale: Float!){
+    // calculate T
+    // considering that T % dt = 0
+    func findPlanetPeriod() -> Float{
+        // find period with standart formula
+        let per = 2 * Float.pi * sqrt(powf(self.orbit.a, 3) / self.g)
         
+        // find closest number for per/dt
+        let decPer = Float(lroundf(per / self.dt))
+        
+        // return decimalPeriod
+        return decPer * self.dt
+    }
+    
+    
+    // add one trajectory point of planet to scene
+    func addTrajectoryPoint(position: SCNVector3){
+        
+        // check planet finished one full rotation cycle
+        if(self.time == 0.0){
+            self.orbit.isTrajFinish = true
+        }
+        
+        // if one cycle is not finished
+        // add point to scene
+        if(!self.orbit.isTrajFinish){
+            self.orbit.updateTrajectory(planetPosition: self.position)
+        }
+    }
+    
+    
+    // make one rotation step on V angle
+    func rotationStep(position: SCNVector3, scale: Float!){
+    
         // rotation time moment
         self.time = (self.time + self.dt) <= self.T ? self.time + self.dt : 0.0
+        
         
         // find the angle E(t) solving kelper eq with Halleys method
         // after it find true anomaly v(E, t)

@@ -105,7 +105,9 @@ class SolarSystem: SCNScene{
             
             // add plane to solar system
             self.sun.addChildNode(self.planets[planetName]!)
-
+            
+            // add planet orbit to solar system
+            self.sun.addChildNode(self.planets[planetName]!.orbit)
         }
     }
     
@@ -114,6 +116,14 @@ class SolarSystem: SCNScene{
     func makeRotationCicle(){
         for planet in planets{
            planet.value.rotationStep(position: planet.value.position, scale: self.scale)
+        }
+    }
+    
+    // add point of trajectory to scene
+    // every planet rotation step add 1 point to scene
+    func addTrajectoryPoints(){
+        for planet in planets{
+            planet.value.addTrajectoryPoint(position: planet.value.position)
         }
     }
     

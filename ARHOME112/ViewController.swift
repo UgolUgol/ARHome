@@ -95,9 +95,13 @@ extension ViewController: ARSCNViewDelegate{
         if(self.solarSystemVisible){
             let scene = self.sceneView.scene as! SolarSystem
             scene.makeRotationCicle()
+            scene.addTrajectoryPoints()
         }
     }
     
+    func renderer(_ renderer: SCNSceneRenderer, willRenderScene scene: SCNScene, atTime time: TimeInterval) {
+        
+    }
     
     // adding plane function
     func addPlane(didAdd node: SCNNode, for anchor: ARAnchor) {
