@@ -52,7 +52,7 @@ class ViewController: UIViewController {
         // get plane position
         let position = planeResult.worldTransform.columns.3
         let x = CGFloat(position.x)
-        let y = CGFloat(position.y + 1)
+        let y = CGFloat(position.y + 0.5)
         let z = CGFloat(position.z)
         let posVec = SCNVector3(x, y, z)
         

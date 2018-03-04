@@ -17,18 +17,17 @@ class SkyBody: SCNNode{
     
     var density: Float!
     var temperature: Float!
-    var radius: Float!                  // real skybody radius, use for phys calculating
-    var drad: Float!                    // skybody radius considering the scale. it uses for displaing
+    var radius: Float!                                 // real skybody radius, use for phys calculating
+    var drad: Float!                                   // skybody radius considering the scale. it uses for displaing
+    
+    var selfAnglePerTime: Float!                       // angle of rotation per dt
+    var selfAxis: SCNVector3 = SCNVector3(0, 1, 0)
+    
     
     var orbit: Orbit!
-    var T: Float!                       // orbital period
+    
     var g: Float!                       // gravity parameter
-    var n: Float!                       // middle angle speed of virtual body
-    var M: Float!                       // middle anomaly
-    var E: Float!                       // eccentry anomaly
-    var v: Float!                       // true anomaly
     var time: Float! = 0.0              // start time in perigelion
-    var dt: Float! = 12*3600               // adding time in seconds
     
     var title: String!
     var geom: SCNGeometry!
@@ -48,9 +47,9 @@ class SkyBody: SCNNode{
         self.title = name
         self.orbit = orbit
         self.g = g
-        self.T = findPlanetPeriod()
-        self.n = 2 * Float.pi / self.T
-        self.E = 0
+        
+        // set angle of self rotation and axis around which rotation
+        self.selfAnglePerTime = 0.00007269 * self.orbit.dt
         
         // create geometry of sphere
         self.geom  = SCNSphere(radius: CGFloat(self.drad))
@@ -65,19 +64,6 @@ class SkyBody: SCNNode{
     
     func addMaterial(materialName material: String) {
         self.geom.firstMaterial?.diffuse.contents = UIImage(named: material)
-    }
-    
-    // calculate T
-    // considering that T % dt = 0
-    func findPlanetPeriod() -> Float{
-        // find period with standart formula
-        let per = 2 * Float.pi * sqrt(powf(self.orbit.a, 3) / self.g)
-        
-        // find closest number for per/dt
-        let decPer = Float(lroundf(per / self.dt))
-        
-        // return decimalPeriod
-        return decPer * self.dt
     }
     
     
@@ -101,26 +87,43 @@ class SkyBody: SCNNode{
     func rotationStep(position: SCNVector3, scale: Float!){
     
         // rotation time moment
-        self.time = (self.time + self.dt) <= self.T ? self.time + self.dt : 0.0
+        self.time = (self.time + self.orbit.dt) <= self.orbit.T ? self.time + self.orbit.dt : 0.0
         
         
         // find the angle E(t) solving kelper eq with Halleys method
         // after it find true anomaly v(E, t)
         var newPosition = SCNVector3()
-        self.M = self.n * self.time
-        self.E = methodHalleys()
-        self.v = trueAnomaly()
+        self.orbit.M = self.orbit.n * self.time
+        self.orbit.E = methodHalleys()
+        self.orbit.v = trueAnomaly()
             
         // set new position to move
-        newPosition.x = self.orbit.x(angle: self.v) / scale
+        newPosition.x = self.orbit.x() / scale
         newPosition.y = position.y
-        newPosition.z = self.orbit.z(angle: self.v) / scale
+        newPosition.z = self.orbit.z() / scale
         
         // speed calculation
-        speedAtPoint(r: self.orbit.r(angle: self.v))
+        speedAtPoint(r: self.orbit.r())
         
         // move to new position
         self.position = newPosition
+        
+    }
+    
+    
+    // rotation around self axis
+    func selfAxisRotationStep(){
+        
+        // get current planet orientation
+        let orientation = self.orientation
+        var glQuaternion = GLKQuaternionMake(orientation.x, orientation.y, orientation.z, orientation.w)
+        
+        // create quaternion with rotation angle
+        let multiplier = GLKQuaternionMakeWithAngleAndAxis(self.selfAnglePerTime, self.selfAxis.x, self.selfAxis.y, self.selfAxis.z)
+        glQuaternion = GLKQuaternionMultiply(glQuaternion, multiplier)
+        
+        // set new orientation to body
+        self.orientation = SCNQuaternion(glQuaternion.x, glQuaternion.y, glQuaternion.z, glQuaternion.w)
     }
     
     
@@ -129,7 +132,7 @@ class SkyBody: SCNNode{
     }
     
     func trueAnomaly() -> Float{
-        return 2 * atanf(sqrtf((1 + self.orbit.e)/(1 - self.orbit.e)) * tanf(self.E/2))
+        return 2 * atanf(sqrtf((1 + self.orbit.e)/(1 - self.orbit.e)) * tanf(self.orbit.E/2))
     }
     
     
@@ -137,7 +140,7 @@ class SkyBody: SCNNode{
     // here we will define three functions that's using in halleys method
     // F(E), F'(E), F''(E)
     func F(E: Float) -> Float{
-        return E - self.M - self.orbit.e * sinf(E)
+        return E - self.orbit.M - self.orbit.e * sinf(E)
     }
     func dF(E: Float) -> Float{
         return 1 - self.orbit.e * cosf(E)
@@ -148,7 +151,7 @@ class SkyBody: SCNNode{
     
     func methodHalleys() -> Float{
         var En = Float(0.0)
-        var E = self.M!
+        var E = self.orbit.M!
         let eps = Float(1e-5)
         repeat{
             En = E

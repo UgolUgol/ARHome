@@ -48,7 +48,8 @@ class SolarSystem: SCNScene{
     func createSun(posVec: SCNVector3){
         self.sunRadius = Float(6.9551e8)
         self.sun = SkyBody(position: posVec, withRad: self.sunRadius, onDispRad: 0.15,
-                           withDensity: 1409.0, withOrbit: Orbit(majorAxis: 0, eccentricity: 0, sunPosition: posVec),
+                           withDensity: 1409.0, withOrbit: Orbit(majorAxis: 0, eccentricity: 0,
+                                                                 sunPosition: posVec, gravity: 0),
                            withName: "Sun", gravity: self.G)
         self.sun.addMaterial(materialName: "Sun_diffuse")
     }
@@ -90,8 +91,9 @@ class SolarSystem: SCNScene{
             // create planet orbit and position in sky
             // x coordinate is caculating considering scale
             // in local sun coordinates
-            let planetOrbit = Orbit(majorAxis: a, eccentricity: e, sunPosition: posVec)
-            let planetPosition = SCNVector3((planetOrbit.x(angle: 0)) / self.scale, 0, 0)
+            let planetOrbit = Orbit(majorAxis: a, eccentricity: e,
+                                    sunPosition: posVec, gravity: self.G * self.sun.mass!)
+            let planetPosition = SCNVector3((planetOrbit.x()) / self.scale, 0, 0)
             
             // create planet
             // g = G * au * sunMass - grav parameter in astronomic units (g = GM)
@@ -115,10 +117,13 @@ class SolarSystem: SCNScene{
     // making one rotation step for each planet
     func makeRotationCicle(){
         for planet in planets{
-           planet.value.rotationStep(position: planet.value.position, scale: self.scale)
+            
+            // rotate around sun and rotate round self axis
+            planet.value.rotationStep(position: planet.value.position, scale: self.scale)
+           // planet.value.selfAxisRotationStep()
         }
     }
-    
+        
     // add point of trajectory to scene
     // every planet rotation step add 1 point to scene
     func addTrajectoryPoints(){
