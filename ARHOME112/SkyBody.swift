@@ -19,6 +19,7 @@ class SkyBody: SCNNode{
     var temperature: Float!
     var radius: Float!                                 // real skybody radius, use for phys calculating
     var drad: Float!                                   // skybody radius considering the scale. it uses for displaing
+    var T: Float!                                      // self rotation period time
     
     var selfAnglePerTime: Float!                       // angle of rotation per dt
     var selfAxis: SCNVector3 = SCNVector3(0, 1, 0)
@@ -34,8 +35,8 @@ class SkyBody: SCNNode{
     
     convenience init(position: SCNVector3, withRad radius: Float,
                      onDispRad drad: Float, withDensity density: Float,
-                     withOrbit orbit: Orbit, withName name: String,
-                     gravity g: Float){
+                     withOrbit orbit: Orbit, withSelfRotPeriod T: Float,
+                     withName name: String, gravity g: Float){
         
         // set global sky body characters
         self.init()
@@ -47,9 +48,11 @@ class SkyBody: SCNNode{
         self.title = name
         self.orbit = orbit
         self.g = g
+        self.T = T
         
         // set angle of self rotation and axis around which rotation
-        self.selfAnglePerTime = 0.00007269 * self.orbit.dt
+        self.selfAnglePerTime = self.orbit.dt / self.T
+        print(self.selfAnglePerTime)
         
         // create geometry of sphere
         self.geom  = SCNSphere(radius: CGFloat(self.drad))
@@ -119,7 +122,7 @@ class SkyBody: SCNNode{
         var glQuaternion = GLKQuaternionMake(orientation.x, orientation.y, orientation.z, orientation.w)
         
         // create quaternion with rotation angle
-        let multiplier = GLKQuaternionMakeWithAngleAndAxis(self.selfAnglePerTime, self.selfAxis.x, self.selfAxis.y, self.selfAxis.z)
+        let multiplier = GLKQuaternionMakeWithAngleAndAxis(self.selfAnglePerTime!, self.selfAxis.x, self.selfAxis.y, self.selfAxis.z)
         glQuaternion = GLKQuaternionMultiply(glQuaternion, multiplier)
         
         // set new orientation to body

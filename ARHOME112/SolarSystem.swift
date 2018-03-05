@@ -50,6 +50,7 @@ class SolarSystem: SCNScene{
         self.sun = SkyBody(position: posVec, withRad: self.sunRadius, onDispRad: 0.15,
                            withDensity: 1409.0, withOrbit: Orbit(majorAxis: 0, eccentricity: 0,
                                                                  sunPosition: posVec, gravity: 0),
+                           withSelfRotPeriod: 1,
                            withName: "Sun", gravity: self.G)
         self.sun.addMaterial(materialName: "Sun_diffuse")
     }
@@ -64,15 +65,20 @@ class SolarSystem: SCNScene{
             ["name": "Mercury", "selfRadius": Float(2440e3),
              "dRad": Float(0.03), "density": Float(5427.0),
              "majorAxis": Float(57909227000), "eccentricity": Float(0.206),
-             "materialPath": "mercury_diffuse_2k"],
+             "selfRotPeriod": Float(5097600), "materialPath": "mercury_diffuse_2k"],
             ["name": "Venera", "selfRadius": Float(6052e3),
              "dRad": Float(0.05), "density": Float(5240.0),
              "majorAxis": Float(108208930000), "eccentricity": Float(0.0068),
-             "materialPath": "venera_diffuse_2k"],
+             "selfRotPeriod": Float(20995200), "materialPath": "venera_diffuse_2k"],
             ["name": "Earth", "selfRadius": Float(6371e3),
              "dRad": Float(0.06), "density": Float(5515.0),
              "majorAxis": Float(149598261000), "eccentricity": Float(0.0167),
-             "materialPath": "earth_diffuse_2k"]
+             "selfRotPeriod":Float(86400), "materialPath": "earth_diffuse_2k"],
+            ["name": "Mars", "selfRadius": Float(3390e3),
+             "dRad": Float(0.04), "density": Float(3930.0),
+             "majorAxis": Float(227943820000), "eccentricity": Float(0.0934),
+             "selfRotPeriod":Float(86420),"materialPath": "mars_diffuse_2k"],
+            
         ]
         
         // create planets of scene adding it to planets array
@@ -84,6 +90,7 @@ class SolarSystem: SCNScene{
             let planetRad = planet["selfRadius"] as! Float
             let planetDRad = planet["dRad"] as! Float
             let planetDensity = planet["density"] as! Float
+            let selfRotPeriod = planet["selfRotPeriod"] as! Float
             let material = planet["materialPath"] as! String
             let a = planet["majorAxis"] as! Float
             let e = planet["eccentricity"] as! Float
@@ -99,8 +106,8 @@ class SolarSystem: SCNScene{
             // g = G * au * sunMass - grav parameter in astronomic units (g = GM)
             self.planets[planetName] = SkyBody(position: planetPosition, withRad: planetRad,
                                                onDispRad: planetDRad, withDensity: planetDensity,
-                                               withOrbit: planetOrbit, withName: planetName,
-                                               gravity: self.G * self.sun.mass!)
+                                               withOrbit: planetOrbit, withSelfRotPeriod: selfRotPeriod,
+                                               withName: planetName, gravity: self.G * self.sun.mass!)
             
             // set plane material
             self.planets[planetName]!.addMaterial(materialName: material)
@@ -120,7 +127,7 @@ class SolarSystem: SCNScene{
             
             // rotate around sun and rotate round self axis
             planet.value.rotationStep(position: planet.value.position, scale: self.scale)
-           // planet.value.selfAxisRotationStep()
+            planet.value.selfAxisRotationStep()
         }
     }
         

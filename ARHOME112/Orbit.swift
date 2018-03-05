@@ -18,7 +18,7 @@ class Orbit: SCNNode{
     var perigelion: Float!                  // distance from sun position to perigelion
     
     
-    var dt: Float! = 12*3600               // adding time in seconds
+    var dt: Float! = 12 * 3600               // adding time in seconds
     
     var T: Float!                       // orbital period
     var n: Float!                       // middle angle speed of virtual body
@@ -48,7 +48,7 @@ class Orbit: SCNNode{
         self.v = 0
         
         // setup wayPointsLimit and calculate k coef
-        self.wayPointsLimit = 300
+        self.wayPointsLimit = 500
         calcPointsDiff();
         
         // set counter to k value for adding first point on time 0 + dt
