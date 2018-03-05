@@ -18,7 +18,7 @@ class Orbit: SCNNode{
     var perigelion: Float!                  // distance from sun position to perigelion
     
     
-    var dt: Float! = 12 * 3600               // adding time in seconds
+    var dt: Float! = 12*3600               // adding time in seconds
     
     var T: Float!                       // orbital period
     var n: Float!                       // middle angle speed of virtual body
@@ -29,6 +29,7 @@ class Orbit: SCNNode{
     var isTrajFinish: Bool!                 // is a trajectory ellipse is finished to draw
     var wayPointsLimit: Int!                // showing count of trajectory points on orbit
     var pointsCounter: Int!                 // show number of rendering way points
+    var k: Int!                             // k is coeffiecent that equal k = RealOrbitPoints/wayPointsLimit where RealOrbitPoints = T / dt
     
     
     convenience init(majorAxis a: Float, eccentricity e: Float,
@@ -46,12 +47,23 @@ class Orbit: SCNNode{
         self.E = 0
         self.v = 0
         
-        self.wayPointsLimit = lroundf(self.T / self.dt * 12)
-        self.pointsCounter = 0
+        // setup wayPointsLimit and calculate k coef
+        self.wayPointsLimit = 300
+        calcPointsDiff();
+        
+        // set counter to k value for adding first point on time 0 + dt
+        self.pointsCounter = self.k
+        
         
         // init trajectory
         initTrajectory()
     }
+    
+    func calcPointsDiff(){
+        let RealOrbitPoints = lroundf(self.T / self.dt)
+        self.k = ( (RealOrbitPoints / self.wayPointsLimit) > 1 ? RealOrbitPoints/self.wayPointsLimit : 1)
+    }
+    
     
     // calculate T
     // considering that T % dt = 0
@@ -90,11 +102,22 @@ class Orbit: SCNNode{
     
     func updateTrajectory(planetPosition pos: SCNVector3){
         
-        // create new orbit trajectory point
-        let point = createTrajectoryPoint(position: pos)
+        //check at this time we must add point to orbit
+        if(self.pointsCounter >= self.k)
+        {
+            // create new orbit trajectory point
+            let point = createTrajectoryPoint(position: pos)
         
-        // add point to orbit
-        self.addChildNode(point)
+            // add point to orbit
+            self.addChildNode(point)
+            
+            // set counter to start position
+            self.pointsCounter = 1;
+        }
+        // if we can't add
+        else {
+            self.pointsCounter! += 1
+        }
     }
     
     func createTrajectoryPoint(position: SCNVector3) -> SCNNode {
